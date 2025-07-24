@@ -3,6 +3,7 @@ package com.simplemobiletools.commons.dialogs
 import android.view.LayoutInflater
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+import androidx.viewpager2.widget.ViewPager2
 import com.simplemobiletools.commons.R
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.adapters.RenameAdapter
@@ -10,22 +11,24 @@ import com.simplemobiletools.commons.databinding.DialogRenameBinding
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.RENAME_PATTERN
 import com.simplemobiletools.commons.helpers.RENAME_SIMPLE
-import com.simplemobiletools.commons.views.MyViewPager
+//import com.simplemobiletools.commons.views.MyViewPager
 
 class RenameDialog(val activity: BaseSimpleActivity, val paths: ArrayList<String>, val useMediaFileExtension: Boolean, val callback: () -> Unit) {
     var dialog: AlertDialog? = null
     val view = DialogRenameBinding.inflate(LayoutInflater.from(activity), null, false)
     var tabsAdapter: RenameAdapter
-    var viewPager: MyViewPager
+    var viewPager: ViewPager2
 
     init {
         view.apply {
             viewPager = dialogTabViewPager
             tabsAdapter = RenameAdapter(activity, paths)
             viewPager.adapter = tabsAdapter
-            viewPager.onPageChangeListener {
-                dialogTabLayout.getTabAt(it)!!.select()
-            }
+            viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    dialogTabLayout.getTabAt(position)?.select()
+                }
+            })
             viewPager.currentItem = activity.baseConfig.lastRenameUsed
 
             if (activity.baseConfig.isUsingSystemTheme) {
